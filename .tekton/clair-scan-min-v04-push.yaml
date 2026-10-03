@@ -2,20 +2,20 @@ apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/konflux-ci/konflux-test-tasks?rev={{revision}}
+    build.appstudio.openshift.io/repo: https://github.com/SealVis/konflux-test-tasks?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/cancel-in-progress: "false"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
-      == "main" && ( "task/clair-scan-min/0.4/***".pathChanged() || ".tekton/clair-scan-min-v04-push.yaml".pathChanged()
+    pipelinesascode.tekton.dev/on-cel-expression: event == "incoming" && target_branch
+      == "rebuild" && ( "task/clair-scan-min/0.4/***".pathChanged() || ".tekton/clair-scan-min-v04-push.yaml".pathChanged()
       )
   labels:
-    appstudio.openshift.io/application: konflux-test-tasks
+    appstudio.openshift.io/application: test-tasks
     appstudio.openshift.io/component: clair-scan-min-v04
     pipelines.appstudio.openshift.io/type: build
   name: clair-scan-min-v04-on-push
-  namespace: rhtap-integration-tenant
+  namespace: integration-tenant
 spec:
   params:
   - name: git-url
@@ -23,7 +23,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/rhtap-integration-tenant/clair-scan-min-v04:{{revision}}
+    value: quay.io/sealvis-workloads/integration-tenant/clair-scan-min-v04:{{revision}}
   - name: dockerfile
     value: Dockerfile
   - name: path-context

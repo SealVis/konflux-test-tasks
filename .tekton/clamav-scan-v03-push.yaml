@@ -2,21 +2,21 @@ apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/konflux-ci/konflux-test-tasks?rev={{revision}}
+    build.appstudio.openshift.io/repo: https://github.com/SealVis/konflux-test-tasks?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/cancel-in-progress: "false"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
-      == "main" && ( "task/clamav-scan/0.3/***".pathChanged() || ".tekton/clamav-scan-v03-push.yaml".pathChanged()
+    pipelinesascode.tekton.dev/on-cel-expression: event == "incoming" && target_branch
+      == "rebuild" && ( "task/clamav-scan/0.3/***".pathChanged() || ".tekton/clamav-scan-v03-push.yaml".pathChanged()
       )
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: konflux-test-tasks
+    appstudio.openshift.io/application: test-tasks
     appstudio.openshift.io/component: clamav-scan-v03
     pipelines.appstudio.openshift.io/type: build
   name: clamav-scan-v03-on-push
-  namespace: rhtap-integration-tenant
+  namespace: integration-tenant
 spec:
   params:
   - name: git-url
@@ -24,7 +24,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/rhtap-integration-tenant/clamav-scan-v03:{{revision}}
+    value: quay.io/sealvis-workloads/integration-tenant/clamav-scan-v03:{{revision}}
   - name: dockerfile
     value: Dockerfile
   - name: path-context
