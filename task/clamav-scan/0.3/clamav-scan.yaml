@@ -2,7 +2,7 @@ apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   labels:
-    app.kubernetes.io/version: "0.3.5"
+    app.kubernetes.io/version: "0.3.6"
   annotations:
     tekton.dev/pipelines.minVersion: "0.12.1"
     tekton.dev/tags: "virus, konflux"
@@ -269,6 +269,7 @@ spec:
           local requested_os=""
           local requested_arch="$requested_platform"
           local requested_variant=""
+          local os_prefix=""
 
           if [ -z "$requested_platform" ]; then
             echo "$platform_manifests"
@@ -286,6 +287,13 @@ spec:
 
           requested_os=$(echo "$requested_os" | tr '[:upper:]' '[:lower:]')
           requested_arch=$(echo "$requested_arch" | tr '[:upper:]' '[:lower:]')
+          # Konflux build-platforms values are scheduling labels such as
+          # linux-m2xlarge/arm64. The hyphenated suffix names a node pool and
+          # is not part of the OCI operating system.
+          os_prefix="${requested_os%%-*}"
+          case "$os_prefix" in
+            linux|windows|darwin|mac|macos|osx) requested_os="$os_prefix" ;;
+          esac
           case "$requested_os" in
             mac|macos|osx) requested_os="darwin" ;;
           esac

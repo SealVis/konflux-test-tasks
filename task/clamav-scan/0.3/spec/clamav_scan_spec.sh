@@ -62,6 +62,34 @@ Describe "platform-aware image handling"
         The output should eq '[{"os":"linux","architecture":"arm64","variant":"v8","digest":"sha256:v8"}]'
     End
 
+    It "strips a Konflux node-pool suffix before selecting a manifest"
+        platform_manifests='[{"os":"linux","architecture":"arm64","variant":"","digest":"sha256:arm64"},{"os":"linux","architecture":"amd64","variant":"","digest":"sha256:amd64"}]'
+
+        When call select_platform_manifests "${platform_manifests}" "linux-m2xlarge/arm64"
+        The output should eq '[{"os":"linux","architecture":"arm64","variant":"","digest":"sha256:arm64"}]'
+    End
+
+    It "keeps the OCI variant when a node-pool suffix is present"
+        platform_manifests='[{"os":"linux","architecture":"arm64","variant":"v8","digest":"sha256:v8"},{"os":"linux","architecture":"arm64","variant":"v9","digest":"sha256:v9"}]'
+
+        When call select_platform_manifests "${platform_manifests}" "linux-m2xlarge/arm64/v8"
+        The output should eq '[{"os":"linux","architecture":"arm64","variant":"v8","digest":"sha256:v8"}]'
+    End
+
+    It "normalizes a node-pool suffix on a mac alias"
+        platform_manifests='[{"os":"darwin","architecture":"arm64","variant":"","digest":"sha256:darwin"},{"os":"linux","architecture":"arm64","variant":"","digest":"sha256:linux"}]'
+
+        When call select_platform_manifests "${platform_manifests}" "macos-m2xlarge/arm64"
+        The output should eq '[{"os":"darwin","architecture":"arm64","variant":"","digest":"sha256:darwin"}]'
+    End
+
+    It "leaves an unknown hyphenated operating system unchanged"
+        platform_manifests='[{"os":"linux","architecture":"amd64","variant":"","digest":"sha256:linux"}]'
+
+        When call select_platform_manifests "${platform_manifests}" "custom-os/amd64"
+        The output should eq '[]'
+    End
+
     It "selects every operating system for an architecture-only request"
         platform_manifests='[{"os":"linux","architecture":"amd64","variant":"","digest":"sha256:linux"},{"os":"windows","architecture":"amd64","variant":"","digest":"sha256:windows"}]'
 
@@ -85,7 +113,7 @@ Describe "platform-aware image handling"
     End
 
     It "retries raw manifest inspection"
-        # shellcheck disable=SC2329 # Invoked indirectly by the extracted task helper.
+        # shellcheck disable=SC2329,SC2317 # Invoked indirectly by the extracted task helper.
         retry() {
             echo "$*"
         }
@@ -96,7 +124,7 @@ Describe "platform-aware image handling"
     End
 
     It "retries image config inspection"
-        # shellcheck disable=SC2329 # Invoked indirectly by the extracted task helper.
+        # shellcheck disable=SC2329,SC2317 # Invoked indirectly by the extracted task helper.
         retry() {
             echo "$*"
         }
@@ -107,7 +135,7 @@ Describe "platform-aware image handling"
     End
 
     It "passes the Windows platform when extracting a layer"
-        # shellcheck disable=SC2329 # Invoked indirectly by the extracted task helper.
+        # shellcheck disable=SC2329,SC2317 # Invoked indirectly by the extracted task helper.
         retry() {
             echo "$*"
         }
@@ -118,7 +146,7 @@ Describe "platform-aware image handling"
     End
 
     It "passes the Darwin platform when listing a layer"
-        # shellcheck disable=SC2329 # Invoked indirectly by the extracted task helper.
+        # shellcheck disable=SC2329,SC2317 # Invoked indirectly by the extracted task helper.
         retry() {
             echo "$*"
         }
@@ -130,7 +158,7 @@ Describe "platform-aware image handling"
 
 
     It "passes the Windows platform when extracting a full image"
-        # shellcheck disable=SC2329 # Invoked indirectly by the extracted task helper.
+        # shellcheck disable=SC2329,SC2317 # Invoked indirectly by the extracted task helper.
         retry() {
             echo "$*"
         }

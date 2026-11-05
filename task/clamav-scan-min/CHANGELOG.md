@@ -11,6 +11,14 @@ If that's not something you ever plan to do, consider removing this section.
 
 *Nothing yet.*
 
+## 0.3.6
+
+### Fixed
+
+- Normalize Konflux node-pool suffixes in `image-arch` before selecting an OCI
+  manifest. A scheduling label such as `linux-m2xlarge/arm64` is treated as
+  `linux/arm64`, so the scan matches the image manifest.
+
 ## 0.3.3
 
 ### Changed

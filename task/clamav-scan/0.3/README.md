@@ -37,6 +37,14 @@ such as `linux/amd64`, `windows/amd64`, or `darwin/arm64`. In the operating
 system portion of a platform, `mac`, `macos`, and `osx` are accepted as aliases
 for `darwin` (for example, `mac/arm64`).
 
+## Version 0.3.6:
+Konflux scheduling labels append a node-pool id to the operating system, for
+example `linux-m2xlarge/arm64`. Before a manifest is selected, the text after
+the first `-` is removed when the name in front of it is `linux`, `windows`,
+`darwin`, `mac`, `macos`, or `osx`. `linux-m2xlarge/arm64` therefore matches
+the OCI platform `linux/arm64`. `mac`, `macos`, and `osx` are still aliased to
+`darwin` after that. Plain OCI platforms such as `linux/amd64` are unchanged.
+
 ## --max-filesize: 
 Is set to the same value as the default value according to the ClamAV official Documentation.
 
