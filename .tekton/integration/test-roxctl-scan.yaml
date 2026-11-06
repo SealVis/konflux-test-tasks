@@ -5,7 +5,7 @@ metadata:
   name: test-roxctl-scan
   labels:
     appstudio.openshift.io/application: konflux-test-tasks
-    appstudio.openshift.io/component: roxctl-scan-v01
+    appstudio.openshift.io/component: roxctl-scan-v02
 spec:
   pipelineSpec:
     results:
@@ -21,7 +21,7 @@ spec:
             - name: revision
               value: main
             - name: pathInRepo
-              value: task/roxctl-scan/0.1/roxctl-scan.yaml
+              value: task/roxctl-scan/0.2/roxctl-scan.yaml
         params:
           - name: skip-upload
             value: "true"
@@ -41,17 +41,20 @@ spec:
             value: "$(tasks.roxctl-scan.results.IMAGES_PROCESSED)"
           - name: REPORTS
             value: "$(tasks.roxctl-scan.results.REPORTS)"
+          - name: ACS_RHSAS
+            value: "$(tasks.roxctl-scan.results.ACS_RHSAS)"
         taskSpec:
           params:
             - name: TEST_OUTPUT
             - name: SCAN_OUTPUT
             - name: IMAGES_PROCESSED
             - name: REPORTS
+            - name: ACS_RHSAS
           results:
             - name: TEST_OUTPUT
           steps:
             - name: validate-results
-              image: quay.io/konflux-ci/konflux-test:v1.5.9@sha256:7faaebc542c61704003fecbab81a9c81c9770b4df8c5bba18459fba3f58e9c51
+              image: quay.io/konflux-ci/konflux-test:v1.5.10@sha256:2f9960d60c0e4aa0c2fba42b147736fab5bd11644577cff60ec4255a392be252
               env:
                 - name: TEST_OUTPUT
                   value: "$(params.TEST_OUTPUT)"
@@ -61,6 +64,8 @@ spec:
                   value: "$(params.IMAGES_PROCESSED)"
                 - name: REPORTS
                   value: "$(params.REPORTS)"
+                - name: ACS_RHSAS
+                  value: "$(params.ACS_RHSAS)"
                 - name: IMAGE_URL
                   value: "quay.io/konflux-ci/konflux-test:v1.5.4"
               script: |
@@ -92,6 +97,17 @@ spec:
 
                 if echo "$REPORTS" | jq -e 'type == "object"' > /dev/null; then
                    echo "PASS: REPORTS valid"
+                else
+                   exit 1
+                fi
+
+                if echo "$ACS_RHSAS" | jq -e 'type == "object"' > /dev/null; then
+                   echo "PASS: ACS_RHSAS is not empty"
+                   if echo "$ACS_RHSAS" | jq -e '.IMPORTANT | length != 0'; then
+                     echo "IMPORTANT RHSAs found!"
+                   else
+                      exit 1
+                   fi
                 else
                    exit 1
                 fi
